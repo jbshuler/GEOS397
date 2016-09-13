@@ -1,0 +1,19 @@
+%% 
+% John Shuler
+%
+% GEOS597 Homework #1: GIT, Markdown and MATLAB
+%
+% Due: 9/02/2016
+
+clear all;
+clc;
+%% Problem 1: Variables and time
+% A)
+time = clock;
+size (time);
+%
+% Time is a 1 x 6 row vector. Time contains, in order: year, month, date,
+% hour, and minute data. Time is classified as a double variable.
+%
+% B)
+yearString = datestr (time,'yyyy');
