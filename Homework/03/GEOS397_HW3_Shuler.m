@@ -63,6 +63,7 @@ legend ('Slope surface')
 axis ([0 30 0 12])
 set(gcf,'PaperUnits','inches','PaperPosition',[0 0 6 6])
 print -dpng InitialCondition -r100
+grid on
 %
 % *Step 3: Loop through time to compute the topography at* _t+dt_
 %
@@ -87,6 +88,7 @@ title ('Moraine Erosion Model')
 xlabel ('Position (m)')
 ylabel ('Elevation (m)')
 axis ([0 30 0 12])
+grid on
  %
  %% Part 4: Discussion
  % Increasing tMax from 100 years to 1 million years significantly increases 
