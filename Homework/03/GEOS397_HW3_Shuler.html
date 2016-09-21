@@ -1,0 +1,237 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>GEOS397_HW3_Shuler</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-09-19"><meta name="DC.source" content="GEOS397_HW3_Shuler.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Part 1: The finite difference approximation</a></li><li><a href="#3">Part 2: The finite difference solution to the diffusion equation</a></li><li><a href="#4">Part 3: Implementing the numerical solution</a></li><li><a href="#5">Part 4: Discussion</a></li></ul></div><p><b>John Shuler</b></p><p>GEOS597 Homework #3: Hillslope evolution and plotting</p><p>Due: 9/19/2016</p><pre class="codeinput">close <span class="string">all</span>;
+clear <span class="string">all</span>;
+clc;
+</pre><h2>Part 1: The finite difference approximation<a name="2"></a></h2><p><b>Step 1: Taylor Series expansion</b></p><p><img src="GEOS397_HW3_Shuler_eq12691027340155072861.png" alt="$f(x,t+k)=f(x,t)+k*(\partial^2 f(x,t))/(\partial t)+(k^2/2)*((\partial^2 f(x,t))/\partial t^2)+ (k^3/6)*((\partial^3 f(x,t))/\partial t^3)$"> ...</p><p><b>Step 2: The <i>forward</i> difference operator for first derivatives</b></p><p>a.)   <i>O(h)</i> represents all terms of order <i>h</i> and higher. For the purposes of finite difference approximation here, these terms are dropped.</p><p>b.)   <img src="GEOS397_HW3_Shuler_eq05684208559120296357.png" alt="$\partial f(x,t)/\partial t = (f(x,t+k)-f(x,t))/k + O(k)$"></p><p><b>Step 3: The <i>centered</i> difference operator for second derivatives</b></p><p><img src="GEOS397_HW3_Shuler_eq15292468139020654835.png" alt="$\partial^2 f(x,t+k)/\partial t^2 \approx (f(x,t+k)-2f(x,t)+f(x,t-k))/k^2$"></p><p><b>Step 4: Approximate the derivatives</b></p><p><img src="GEOS397_HW3_Shuler_eq04227717774261053598.png" alt="$\partial f(x,t)/\partial t \approx (f(x,t+k)-f(x,t))/k$"></p><h2>Part 2: The finite difference solution to the diffusion equation<a name="3"></a></h2><p><b>Step 1: Approximate the partial differential equation</b></p><p><img src="GEOS397_HW3_Shuler_eq15420933655065107654.png" alt="$(z(x,t+k)-z(x,t))/k \approx \kappa*((z(x+h,t)-2(z(x,t)+z(x-h,t))/h^2)$"></p><p><b>Step 2: Solve for the value of the function at time</b> <i>t+k</i></p><p><img src="GEOS397_HW3_Shuler_eq13711741999402197271.png" alt="$z(x,t+k) \approx \kappa*k*((z(x+h,t)-2(z(x,t))+z(x-h,t))/h^2)+z(x,t)$"></p><h2>Part 3: Implementing the numerical solution<a name="4"></a></h2><p><b>Step 1: Define parameters and constants</b></p><pre class="codeinput">kappa = 2*10^-3;        <span class="comment">% topographic diffusivity [m^2/year]</span>
+dt    = 1;              <span class="comment">% time step in [years]</span>
+dx    = 1;              <span class="comment">% space interval [m]</span>
+<span class="comment">%</span>
+<span class="comment">%</span>
+<span class="comment">% *Step 2: Make the initial model*</span>
+<span class="comment">%</span>
+z = [0 0 0 0 0 1 2 3 4 5 6 7 8 9 10 9 8 7 6 5 4 3 2 1 0 0 0 0 0]; <span class="comment">% [m]</span>
+nNode  = numel( z ); <span class="comment">% [No] number of elements in the x-direction</span>
+xArray = ( 0 : nNode - 1 ) .* dx; <span class="comment">% [m] make the x-position vector</span>
+<span class="comment">%</span>
+<span class="comment">% *At x = 14 m, z = 10 m, the maximum elevation.*</span>
+<span class="comment">%</span>
+figure (1);
+plot (xArray,z,<span class="string">'o'</span>);
+title (<span class="string">'Initial Hillslope Topography'</span>)
+xlabel (<span class="string">'Position (m)'</span>)
+ylabel (<span class="string">'Elevation (m)'</span>)
+legend (<span class="string">'Slope surface'</span>)
+axis ([0 30 0 12])
+set(gcf,<span class="string">'PaperUnits'</span>,<span class="string">'inches'</span>,<span class="string">'PaperPosition'</span>,[0 0 6 6])
+print <span class="string">-dpng</span> <span class="string">InitialCondition</span> <span class="string">-r100</span>
+grid <span class="string">on</span>
+<span class="comment">%</span>
+<span class="comment">% *Step 3: Loop through time to compute the topography at* _t+dt_</span>
+<span class="comment">%</span>
+tMax = 100;             <span class="comment">% max time steps [years]</span>
+t0   = dt;
+zNew = zeros (nNode,tMax);
+zNew(:,1) = z;
+<span class="keyword">for</span> it=t0+dt:dt:tMax;
+    <span class="keyword">for</span> ix=2:nNode-1;
+    zNew(ix,it)=dt*kappa* ((zNew(ix+1,it-1) - 2*(zNew(ix,it-1)) + zNew(ix-1,it-1))/(dx^2)) + zNew(ix,it-1);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+<span class="comment">%</span>
+<span class="comment">% *Step 4: Plot results*</span>
+<span class="comment">%</span>
+figure (2);
+plot (xArray,z)
+hold <span class="string">on</span>;
+plot (xArray,zNew(:,tMax))
+legend (<span class="string">'Initial Slope Profile'</span>,<span class="string">'Profile After 100 years'</span>)
+title (<span class="string">'Moraine Erosion Model'</span>)
+xlabel (<span class="string">'Position (m)'</span>)
+ylabel (<span class="string">'Elevation (m)'</span>)
+axis ([0 30 0 12])
+grid <span class="string">on</span>
+ <span class="comment">%</span>
+</pre><img vspace="5" hspace="5" src="GEOS397_HW3_Shuler_01.png" alt=""> <img vspace="5" hspace="5" src="GEOS397_HW3_Shuler_02.png" alt=""> <h2>Part 4: Discussion<a name="5"></a></h2><p>Increasing tMax from 100 years to 1 million years significantly increases the rounding of the top of the moraine. More material is removed and deposited at the foot if the duration of exposure is increased, all other variables being constant. This is consistent with our current understanding of moraine erosion and deposition (Putkonen et al, 2008). In this example, our final moraine height varied from ~9.5 m after 100 years to &lt; 0.5 m after 100,000 years.</p><p>Values of <img src="GEOS397_HW3_Shuler_eq16107531617707909724.png" alt="$\kappa$"> most often vary within one order of magnitude of the initial value used here, according to our lecture notes. Decreasing <img src="GEOS397_HW3_Shuler_eq16107531617707909724.png" alt="$\kappa$"> by an order of magnitude results in decreased sediment movement. Increasing <img src="GEOS397_HW3_Shuler_eq16107531617707909724.png" alt="$\kappa$"> by an order of magnitude has the opposite effect, illustrating the necessity of accurate estimates of <img src="GEOS397_HW3_Shuler_eq16107531617707909724.png" alt="$\kappa$"> to increase model performance. In this example, for tMax = 1000, the final height of the moraine varied by ~ 5 meters from <img src="GEOS397_HW3_Shuler_eq14159528651903984004.png" alt="$\kappa = 2e^-4$"> to <img src="GEOS397_HW3_Shuler_eq16140184783040811712.png" alt="$\kappa = 2e^-2$">.</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% 
+% *John Shuler*
+%
+% GEOS597 Homework #3: Hillslope evolution and plotting
+%
+% Due: 9/19/2016
+
+close all;
+clear all;
+clc;
+%% Part 1: The finite difference approximation
+% *Step 1: Taylor Series expansion*
+%
+% $f(x,t+k)=f(x,t)+k*(\partial^2 f(x,t))/(\partial t)+(k^2/2)*((\partial^2 f(x,t))/\partial t^2)+ (k^3/6)*((\partial^3 f(x,t))/\partial t^3)$ ...
+%
+% *Step 2: The _forward_ difference operator for first derivatives*
+%
+% a.)   _O(h)_ represents all terms of order _h_ and higher. For the
+% purposes of finite difference approximation here, these terms are
+% dropped.
+% 
+% 
+% b.)   $\partial f(x,t)/\partial t = (f(x,t+k)-f(x,t))/k + O(k)$  
+%
+% *Step 3: The _centered_ difference operator for second derivatives*
+%
+% $\partial^2 f(x,t+k)/\partial t^2 \approx (f(x,t+k)-2f(x,t)+f(x,t-k))/k^2$
+%
+% *Step 4: Approximate the derivatives*
+%
+% $\partial f(x,t)/\partial t \approx (f(x,t+k)-f(x,t))/k$
+%% Part 2: The finite difference solution to the diffusion equation
+%
+% *Step 1: Approximate the partial differential equation*
+% 
+% $(z(x,t+k)-z(x,t))/k \approx \kappa*((z(x+h,t)-2(z(x,t)+z(x-h,t))/h^2)$
+%
+% *Step 2: Solve for the value of the function at time* _t+k_
+%
+% $z(x,t+k) \approx \kappa*k*((z(x+h,t)-2(z(x,t))+z(x-h,t))/h^2)+z(x,t)$
+%
+%% Part 3: Implementing the numerical solution
+% *Step 1: Define parameters and constants*
+kappa = 2*10^-3;        % topographic diffusivity [m^2/year]
+dt    = 1;              % time step in [years]
+dx    = 1;              % space interval [m]
+%
+%
+% *Step 2: Make the initial model*
+%
+z = [0 0 0 0 0 1 2 3 4 5 6 7 8 9 10 9 8 7 6 5 4 3 2 1 0 0 0 0 0]; % [m]
+nNode  = numel( z ); % [No] number of elements in the x-direction
+xArray = ( 0 : nNode - 1 ) .* dx; % [m] make the x-position vector
+%
+% *At x = 14 m, z = 10 m, the maximum elevation.*
+%
+figure (1);
+plot (xArray,z,'o');
+title ('Initial Hillslope Topography')
+xlabel ('Position (m)')
+ylabel ('Elevation (m)')
+legend ('Slope surface')
+axis ([0 30 0 12])
+set(gcf,'PaperUnits','inches','PaperPosition',[0 0 6 6])
+print -dpng InitialCondition -r100
+grid on
+%
+% *Step 3: Loop through time to compute the topography at* _t+dt_
+%
+tMax = 100;             % max time steps [years]
+t0   = dt;              
+zNew = zeros (nNode,tMax);
+zNew(:,1) = z;
+for it=t0+dt:dt:tMax;
+    for ix=2:nNode-1;
+    zNew(ix,it)=dt*kappa* ((zNew(ix+1,it-1) - 2*(zNew(ix,it-1)) + zNew(ix-1,it-1))/(dx^2)) + zNew(ix,it-1);
+    end
+end
+%
+% *Step 4: Plot results*
+%
+figure (2);
+plot (xArray,z)
+hold on;
+plot (xArray,zNew(:,tMax))
+legend ('Initial Slope Profile','Profile After 100 years')
+title ('Moraine Erosion Model')
+xlabel ('Position (m)')
+ylabel ('Elevation (m)')
+axis ([0 30 0 12])
+grid on
+ %
+ %% Part 4: Discussion
+ % Increasing tMax from 100 years to 1 million years significantly increases 
+ % the rounding of the top of the moraine. More material is removed and deposited 
+ % at the foot if the duration of exposure is increased, all other 
+ % variables being constant. This is consistent with
+ % our current understanding of moraine erosion and deposition (Putkonen et
+ % al, 2008). In this example, our final moraine height varied from ~9.5 m
+ % after 100 years to < 0.5 m after 100,000 years.
+ %
+ % Values of $\kappa$ most often vary within one order of magnitude of the
+ % initial value used here, according to our lecture notes. Decreasing $\kappa$ 
+ % by an order of magnitude results in decreased sediment movement. Increasing $\kappa$ by an order of
+ % magnitude has the opposite effect, illustrating the necessity of
+ % accurate estimates of $\kappa$ to increase model performance. In this
+ % example, for tMax = 1000, the final height of the moraine varied by ~ 5
+ % meters from $\kappa = 2e^-4$ to $\kappa = 2e^-2$.
+ % 
+ % 
+
+
+
+##### SOURCE END #####
+--></body></html>
