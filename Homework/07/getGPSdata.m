@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 %% Part 2: Automated GPS Data Processing
 % 2. 1: Download the data and import into MATLAB
 function  [] = getGPSdata(filename)
 
 nHeaderLine = 0;
 fid = fopen( fullfile('H:\Classes_Teaching_Fall 2016\Computation\GEOS397\Homework\07', filename), 'r' );
+=======
+function C=getGPSdata(filename)
+
+nHeaderLine = 0;
+fid = fopen( fullfile('H:\GEOS397\GEOS397\Homework\07\GPSdata\GPSdata', filename), 'r' );
+>>>>>>> origin/GEOS_Shuler
 line = fgetl( fid ); % get the first line
 nHeaderLine = nHeaderLine + 1;
 line = fgetl( fid ); % get the second line
@@ -12,6 +19,7 @@ nHeaderLine = nHeaderLine + 1;
 line = fgetl( fid ); % get the second line
 end
 nHeaderLine = nHeaderLine + 1;
+<<<<<<< HEAD
 fclose(fid);
 
 fileID=fopen(filename);
@@ -66,4 +74,12 @@ subplot (3,1,3)
 plot (tDecyear, vertPosition, '-og','MarkerSize',3);
 xlabel('Time [yr]')
 ylabel('Vertical Displacement [cm]','FontSize',7.5)
+=======
+fclose(fid)
+
+fileID=fopen(filename)
+C=textscan(fileID, '%.4f %.0f %.0f %.4f %.4f %.4f %.4f %.4f %.4f', 'HeaderLines', nHeaderLine)
+fclose(fileID)
+
+>>>>>>> origin/GEOS_Shuler
 end
