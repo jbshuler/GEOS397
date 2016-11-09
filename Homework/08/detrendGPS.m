@@ -2,7 +2,7 @@
 % 1.1: Download the data and import into MATLAB
 function  [] = detrendGPS(filename)
 
-nHeaderLine = 0;sdfsd
+nHeaderLine = 0;
 fid = fopen( fullfile('H:\Classes_Teaching_Fall 2016\Computation\GEOS397\Homework\08', 'ana1CleanUnf.neu'), 'r' );
 line = fgetl( fid ); % get the first line
 nHeaderLine = nHeaderLine + 1;
@@ -64,8 +64,11 @@ ylabel('Vert. Residuals[cm]','FontSize',7.5)
 %% 1.4 Compare the best-fit polynomial
 %% 1.5 Process the residuals
 
-X = [-0.015:0.001:0.015];           % histogram bins [cm]
-nh = hist(residualN, X);
+X = [-0.015:0.001:0.015]*100;           % histogram bins [cm]
+h = figure;
+N = hist(residualN, X);
+figure; 
+bar(X,N)
 %bar( X, nh, 'Facecolor', [0.7 0.7 0.7], 'FaceAlpha', 0.5 )
 
 end
