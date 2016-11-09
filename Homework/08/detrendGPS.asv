@@ -65,7 +65,8 @@ ylabel('Vert. Residuals[cm]','FontSize',7.5)
 %% 1.5 Process the residuals
 
 X = [-0.015:0.001:0.015];           % histogram bins [cm]
-nh = hist(residualN, X);
-%bar( X, nh, 'Facecolor', [0.7 0.7 0.7], 'FaceAlpha', 0.5 )
+h = figure;
+hist (residualN, X);
+% bar( X, histN, 'Facecolor', [0.7 0.7 0.7], 'FaceAlpha', 0.5 )
 
 end
