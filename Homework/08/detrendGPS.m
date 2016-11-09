@@ -2,7 +2,7 @@
 % 1.1: Download the data and import into MATLAB
 function  [] = detrendGPS(filename)
 
-nHeaderLine = 0;
+nHeaderLine = 0;sdfsd
 fid = fopen( fullfile('H:\Classes_Teaching_Fall 2016\Computation\GEOS397\Homework\08', 'ana1CleanUnf.neu'), 'r' );
 line = fgetl( fid ); % get the first line
 nHeaderLine = nHeaderLine + 1;
