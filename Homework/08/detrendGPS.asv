@@ -22,9 +22,9 @@ fclose(fileID);
 
 tDecyear     = C{1}; % Time [decimal year]
 tDaynum      = C{3}; % Time [integer day number]
-Nposition    = C{4}*100; % North Position [cm]
-Eposition    = C{5}*100; % East Position [cm]
-vertPosition = C{6}*100; % Vertical Position [cm]
+Nposition    = C{4}; % North Position [cm]
+Eposition    = C{5}; % East Position [cm]
+vertPosition = C{6}; % Vertical Position [cm]
 
 % 1.3: Process the GPS data
 
@@ -87,7 +87,7 @@ ylabel('Vert. Residuals[cm]','FontSize',7.5)
 %% 1.4 Compare the best-fit polynomial
 %% 1.5 Process the residuals
 
-X = [-0.015:0.001:0.015]*100;           % histogram bins [cm]
+X = [-0.015:0.001:0.015];           % histogram bins [cm]
 %h = figure;
 nh = hist(residualN, X);
 ne = hist(residualE, X);
