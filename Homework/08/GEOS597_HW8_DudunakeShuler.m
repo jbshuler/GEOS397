@@ -11,8 +11,10 @@ clc;
 %% *Part 1: Automated GPS Data Processing*
 allGPS_HW8
 %% 1.4 Compare the best-fit polynomial
-[V,map] = imread('VelocityTable_HW8.PNG', 'png');
-imshow(V,map);
+readtable('VelocityTable.xlsx')
+%[V,map] = imread('VelocityTable_HW8.PNG', 'png');
+%imshow(V,map);
+
 % ANSWER QUESTION HERE
 
 %% 1.7: Analyze the results
@@ -50,4 +52,33 @@ title('Monthly Runoff at Cave Creek, KY')
 
 %% 2.3: Median and Mean
 
+for i = 1:12;
+medianArray (1,i) = median(runoffArray(:,i))
+meanArray (1,i) = mean(runoffArray(:,i))
+end
 
+monthArray = [1:1:12];
+h = figure;
+%bar (monthArray, [medianArray; meanArray]', 'stacked')
+plot(monthArray, medianArray,'o','MarkerSize',10);
+hold on;
+plot(monthArray, meanArray,'x','MarkerSize',10);
+title('Mean and Median Runoff at Cave Creek, KY')
+legend('Median','Mean')
+xticks([1:12])
+xticklabels({'Oct','Nov','Dec','Jan','Feb','March','Apr','May','Jun','July','Aug','Sept'})
+ylabel('Runoff [inches/100]')
+
+%ANSWER QUESTION HERE
+
+%% 2.4: Box and whisker plot of each month
+h = figure;
+boxplot(runoffArray);
+xticks([1:12])
+xticklabels({'Oct','Nov','Dec','Jan','Feb','March','Apr','May','Jun','July','Aug','Sept'})
+title('Box and Whisker Plot of Runoff at Cave Creek, KY')
+xticks([1:12])
+xticklabels({'Oct','Nov','Dec','Jan','Feb','March','Apr','May','Jun','July','Aug','Sept'})
+ylabel('Runoff [inches/100]')
+
+% ANSWER QUESTION

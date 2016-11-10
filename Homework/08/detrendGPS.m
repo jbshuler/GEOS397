@@ -29,6 +29,7 @@ vertPosition = C{6}*100; % Vertical Position [cm]
 % 1.3: Process the GPS data
 
 stationName = filename(1:4);        % pulls first four characters = station name
+
 order = 1;                          % polynomial order                 
 pN = polyfit(tDecyear, Nposition, order);   % generate trendline for N position
 trendN = polyval( pN, tDecyear );
