@@ -59,12 +59,12 @@ fprintf ('Number of days with data: %d\n', numDays)
 fprintf ('Total north displacement:     %.2f [cm]\n', totNdisplacement)
 fprintf ('Total east displacement:      %.2f [cm]\n', totEdisplacement)
 fprintf ('Total vertical displacement:  %.2f [cm]\n', totVdisplacement)
-fprintf ('Avg north velocity:     %.2f [cm/yr]\n', meanNvelocity)
-fprintf ('Avg east velocity:      %.2f [cm/yr]\n', meanEvelocity)
-fprintf ('Avg vertical velocity:  %.2f [cm/yr]\n\n', meanVertvelocity)
-fprintf ('Avg north velocity using best-fit polynomial:     %.2f [cm/yr]\n', pN(1))
-fprintf ('Avg east velocity using best-fit polynomial:      %.2f [cm/yr]\n', pE(1))
-fprintf ('Avg vertical velocity best-fit polynomial:  %.2f [cm/yr]\n\n', pVert(1))
+fprintf ('Avg north velocity:     %.3f [cm/yr]\n', meanNvelocity)
+fprintf ('Avg east velocity:      %.3f [cm/yr]\n', meanEvelocity)
+fprintf ('Avg vertical velocity:  %.3f [cm/yr]\n', meanVertvelocity)
+fprintf ('Avg north velocity using best-fit polynomial:     %.3f [cm/yr]\n', pN(1))
+fprintf ('Avg east velocity using best-fit polynomial:      %.3f [cm/yr]\n', pE(1))
+fprintf ('Avg vertical velocity best-fit polynomial:  %.3f [cm/yr]\n\n', pVert(1))
 
 h = figure;
 str=sprintf('North, East and Vertical Displacement Residuals at Station %s \n', stationName);
@@ -85,17 +85,17 @@ xlabel('Time [yr]')
 ylabel('Vert. Residuals[cm]','FontSize',7.5)
 
 %% 1.4 Compare the best-fit polynomial
+
+% *SEE MAIN SCRIPT*
 %% 1.5 Process the residuals
 
 X = [-0.015:0.001:0.015]*100;           % histogram bins [cm]
-%h = figure;
 nh = hist(residualN, X);
 ne = hist(residualE, X);
 nv = hist(residualVert, X);
 h = figure; 
 bar( X, [nh; ne; nv]','stacked');
 legend('N residuals','E residuals','Vertical residuals');
-%str=sprintf('North, East and Vertical Displacement Residuals at Station %s \n', stationName);
 title(sprintf('North, East and Vertical Displacement Residuals at Station %s \n', stationName));
 
 end
