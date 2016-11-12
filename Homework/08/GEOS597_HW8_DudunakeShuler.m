@@ -22,12 +22,25 @@ readtable('VelocityTable.xlsx')
 
 %% *Part 2: Water-year data loading & visualization*
 %% 2.1: Load the data, sort and plot
+
 load('cavecreek.txt');
-t1 = datetime(1953,9,1);
-t2 = t1 + calmonths(1:216);
+tEnd = datetime(1953, 9, 1) + calmonths(1:3);
+tBeg = datetime(1953, 0, 1) + calmonths(1:9);
+tfirst = [tEnd tBeg];
+tfinal(1,:) = tfirst;
+
+for i=1:17;
+    tfinal(i+1,:) = tfirst + calyears(i);
+end
+
+tfinal2 = tfinal';
+tArray = (reshape(tfinal2,1,216))';
+
+[tArraysorted, SortIndex] = sort(tArray);
+cavecreeksorted = cavecreek(SortIndex);
 
 h = figure;
-plot(t2, cavecreek);
+plot(tArraysorted, cavecreeksorted);
 xlabel('Time [year]')
 ylabel('Runoff [inches/100]')
 title('Monthly Runoff at Cave Creek, KY')
@@ -38,7 +51,7 @@ title('Monthly Runoff at Cave Creek, KY')
 
 B = reshape(cavecreek,[12,18]);
 runoffArray = B';
-
+  
 h = figure;
 imagesc(runoffArray);
 xticks([1:2:12])
