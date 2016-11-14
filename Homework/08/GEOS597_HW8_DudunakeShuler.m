@@ -15,11 +15,24 @@ readtable('VelocityTable.xlsx')
 %[V,map] = imread('VelocityTable_HW8.PNG', 'png');
 %imshow(V,map);
 
-% ANSWER QUESTION HERE
+% Overall, the estimated values of average motion remain consistent and are
+% all within 0.1 cm/yr of the compared values for all directions.
+% Theoretically, polyfit is more accurate becuse it is estimating all 
+% values rather than just the beginning and end points. 
 
 %% 1.7: Analyze the results
-% ANSWER QUESTION HERE
-
+% The histograms make sense given the general trends observed in the plots
+% of residual movement versus time.Vertical residual values tend to have
+% greater variability as the histograms show a greater spread for the
+% vertical residuals.
+% The eastern and northern direction residuals tend to have less
+% variability and are more clustered around zero residual values because the polynomial
+% fit is much better. A few stations show northern residuals that appear bimodally distributed, which may be better addressed with higher order polynomials. 
+% Generally, the first order polynomial did an adequate job of detrending
+% the plate movement data.
+% If the bins were smaller, the normal distributions
+% would become smoother. Conversely, coarser bin sizes would decrease the
+% appearance of a normal distribution of the residual data.
 %% *Part 2: Water-year data loading & visualization*
 %% 2.1: Load the data, sort and plot
 
@@ -45,7 +58,9 @@ xlabel('Time [year]')
 ylabel('Runoff [inches/100]')
 title('Monthly Runoff at Cave Creek, KY')
 
-% ANSWER QUESTION HERE
+% This data needs to be sorted chronologically because the raw format is 
+% organized by water year from Oct 1 - Sept 31, rather than from January to
+% December.
 
 %% 2.2: Reshape vector into a matrix and plot
 
@@ -82,7 +97,11 @@ xticks([1:12])
 xticklabels({'Oct','Nov','Dec','Jan','Feb','March','Apr','May','Jun','July','Aug','Sept'})
 ylabel('Runoff [inches/100]')
 
-%ANSWER QUESTION HERE
+% Mean and median runoff values do not match because the mean is influenced
+% by outliers in the data moreso than is median. Particularly high or low
+% runoff years can skew the mean, while only marginally affecting median.
+% In this dataset, the mean for all months is greater than or roughly equal to the median, except
+% in March, where the opposite was true.
 
 %% 2.4: Box and whisker plot of each month
 h = figure;
@@ -94,4 +113,16 @@ xticks([1:12])
 xticklabels({'Oct','Nov','Dec','Jan','Feb','March','Apr','May','Jun','July','Aug','Sept'})
 ylabel('Runoff [inches/100]')
 
-% ANSWER QUESTION
+% Box and whisker plots display this data with more statisical information.
+% The central 50% of the data is bounded by the boxes. The median is
+% represented by the red line in each box. The 75-100% quartile and the
+% 0-25% quartiles are representd by the 'whiskers' on the two ends of each
+% box. The small crosses represent outlie values not included in the box and
+% whisker construction. 
+%
+% Our plot shows March to be by far the wettest month of the year at Cave
+% Creek, though it has also the widest spread in values. The median values
+% for each month appear to be normally distributed. The range of values in
+% the drier months (June-November) is markedly lower than the months with
+% greater runoff (December-May). There are more outlier values in the drier
+% months as well.
