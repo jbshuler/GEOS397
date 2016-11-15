@@ -1,0 +1,101 @@
+\documentclass[10pt,fleqn]{article}
+
+\usepackage{graphicx}
+\usepackage[tableposition=top]{caption}
+\usepackage{natbib}
+\usepackage{floatrow}
+\floatsetup[table]{capposition=top}
+
+\usepackage[]{mcode}
+
+\usepackage{fancyhdr}
+% \usepackage[margin=1in,showframe]{geometry}
+\usepackage[margin=1in]{geometry}
+\usepackage{tabularx} % for \textwidth table
+\usepackage{multicol}
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks,
+  urlcolor=blue,
+  citecolor=gray,
+  pdftitle={DM Curriculum Vitae},
+  pdfauthor={Dylan Mikesell},
+  pdfsubject={Curriculum Vitae},
+}
+
+\pagestyle{fancy}
+
+\lhead{Boise State University}
+\chead{GEOS 397}
+\rhead{Fall 2016}
+\fancyfoot[C]{\thepage}
+% \renewcommand{\headrulewidth}{0pt} % remove horizontal line
+\setlength{\headsep}{12pt} % set separation between course name and header
+% \setlength{\hoffset}{-0.5in} % set separation between course name and header
+% \setlength{\textwidth}{7in}
+\setlength\parindent{0pt} % Removes all indentation from paragraphs
+
+\title{Computation in the geosciences}
+
+\date{\empty}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{\baselineskip}
+
+
+\usepackage{siunitx}
+\sisetup{output-exponent-marker=\ensuremath{\mathrm{e}}}
+
+% \renewcommand{\chaptertitle}[1]{\chaptitlefont\MakeUppercase{#1}}
+
+\begin{document}
+
+\textbf{L22: class exercises} -- Try to implement/solve the following problems in MATLAB.
+
+\section*{Time series}
+
+In this step you will create your own time series that contains multiple periodic components, a linear trend and noise. Create a time vector from 0:1000 with a time step of dt=1.
+
+Now create a periodic signal ($x_p$) composed of three sine functions with 1) A1=2, f1=1/50; 2) A2=1, f2=1/15, and 3) A3=0.5, f3=1/5 summed together. For example, sine wave one would be A1*sin(2*pi*f1*t). Plot this wave and label the axes.
+
+Next, create a linear trend ($x_tr$) that has a slope of 0.005 and y-intercept at 0. Add this to the $x_p$ curve and plot on top of the individual $x_p$ curve. Do you notice a linear trend?
+
+Finally, generate zero-mean random Gaussian noise with \textbf{randn()}. The noise should have a standard deviation of one. \textit{Note: Prior to calling \textbf{randn()}, make sure to set \textbf{rng(0)} so that everyone in class has the same random noise.} Add this noise to the periodic and trend data so that you have a time series with all three components. Plot this data on top of the periodic only signal.
+
+You should now have three signals.
+\begin{enumerate}
+  \item $x_p(t)$ = periodic signal composed of three sine curves
+  \item $x_1(t) = x_p(t) + x_{tr}(t)$ = periodic plus linear trend
+  \item $x_2(t) = x_p(t) + x_{tr}(t) + x_n(t)$ = periodic plus linear trend plus noise
+\end{enumerate}
+
+\section{Periodogram}
+
+Use \textbf{nextpow()} to find the next power of two of the number of data points. 
+Set \textbf{nfft=$2^{nextpow(N)}$}, where N is the number of data. Then call \textbf{[Pxx,f]=periodogram(x\_p,[],nfft,fs)}, where \textit{nfft} is the number of points in the fft (an \textit{even} number of points makes the fft symmetric and using powers of two enables this to be done easily). $x_p$ is the periodic only signal; \textit{fs} is the sampling frequency 1/dt. Then plot the output with the y-limits set from 0:1000;
+
+\begin{lstlisting}
+nfft = 2^nextpow2(N);
+[Pxx,f] = periodogram(x_p,[],nfft,fs);
+
+figure;
+plot(f,Pxx); grid on;
+xlabel('Frequency [Hz]' ylim([0 1000]););
+ylabel('Power');
+title('Auto-Spectrum');
+ylim([0 1000]);
+\end{lstlisting}
+
+Describe the output. What do you notice about the upper frequency limit?
+
+Repeat the periodogram computation and plotting using 1) the periodic + trend signal and 2) the periodic, trend and noise signal. Describe the differences in the plots.
+
+Now vary the noise from a standard deviation of 1 to 2 to 3 to 4. What happens to you plots?
+
+\end{document}
+
+
+
+
+
+
