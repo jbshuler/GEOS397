@@ -26,7 +26,7 @@ Nposition    = C{4}*100; % North Position [cm]
 Eposition    = C{5}*100; % East Position [cm]
 vertPosition = C{6}*100; % Vertical Position [cm]
 
-% 1.3: Process the GPS data
+%% 1.3: Process the GPS data
 
 stationName = filename(1:4);        % pulls first four characters = station name
 
@@ -65,7 +65,7 @@ fprintf ('Avg east velocity:      %.3f [cm/yr]\n', meanEvelocity)
 fprintf ('Avg vertical velocity:  %.3f [cm/yr]\n', meanVertvelocity)
 fprintf ('Avg north velocity using best-fit polynomial:     %.3f [cm/yr]\n', pN(1))
 fprintf ('Avg east velocity using best-fit polynomial:      %.3f [cm/yr]\n', pE(1))
-fprintf ('Avg vertical velocity best-fit polynomial:  %.3f [cm/yr]\n\n', pVert(1))
+fprintf ('Avg vertical velocity best-fit polynomial:        %.3f [cm/yr]\n\n', pVert(1))
 
 h = figure;
 str=sprintf('North, East and Vertical Displacement Residuals at Station %s \n', stationName);
