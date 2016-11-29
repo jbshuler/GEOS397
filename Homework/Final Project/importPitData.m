@@ -1,8 +1,8 @@
 %% Import a single data file
-function  [] = importPitData(filename)
+function  C = importPitData(filename)
   
-    fileID=fopen(filename);
-    C = textscan(fileID, '%f%f%f%f%f%f%f%f%f');
+    fileID = fopen(filename,'r');
+    C = textscan(fileID, '%s%s%d%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f', 'HeaderLines', 4,'TreatAsEmpty','NaN');
     fclose(fileID);
 
 end
