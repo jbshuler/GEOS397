@@ -7,7 +7,13 @@ clear all;
 clc;
 
 % For temp. influence on signal- Fitting Toolbox, 'nonlinfit'
-% Maybe low pass filter
+% Maybe low pass filter 
+% Combine date and time vectors
+% Use datenum to reformat date/time
+% Use datetick to label time axis
+% Interpolate with pchip; make new time vector from 0:dt:end
+% x = interp1(to, xo, t1, 'pchip'
+% 
 
 %% Load in Data
 
