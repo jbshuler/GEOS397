@@ -12,7 +12,7 @@ clc;
 %% Load in Data
 
 fileID = fopen('./CR6Series_SoilPit1_2016_07_09.dat','r');
-July9 = textscan(fileID, '%s%s%d%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f', 'HeaderLines', 4,'TreatAsEmpty','NaN');
+July9 = textscan(fileID, '%s%s%d%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f', 'HeaderLines', 4);
 fclose(fileID);
 
 fileID = fopen('./CR6Series_SoilPit1_2016_07_22.dat','r');
@@ -51,11 +51,11 @@ for i = 4:8;
     July22moisture (:,i-3) = July22{i}(22:end);
 end
 
-Aug06datetime (:,1) = Aug6{1}(9:end);
-Aug06datetime (:,2) = Aug6{2}(9:end);
+Aug6datetime (:,1) = Aug6{1}(9:end);
+Aug6datetime (:,2) = Aug6{2}(9:end);
 
 for i = 4:8;
-    Aug06moisture (:,i-3) = Aug6{i}(9:end);
+    Aug6moisture (:,i-3) = Aug6{i}(9:end);
 end
 
 Aug23datetime (:,1) = Aug23{1}(5:end);
@@ -79,8 +79,60 @@ for i = 4:8;
     Sep30moisture (:,i-3) = Sep30{i}(62:end);
 end
 
-datetime = [July9datetime; July22datetime; Aug06datetime; Aug23datetime; Sep9datetime; Sep30datetime];
-pit1Moisture = [July9moisture; July22moisture; Aug06moisture; Aug23moisture; Sep9moisture; Sep30moisture];
+datetime = [July9datetime; July22datetime; Aug6datetime; Aug23datetime; Sep9datetime; Sep30datetime];
+pit1Moisture = [July9moisture; July22moisture; Aug6moisture; Aug23moisture; Sep9moisture; Sep30moisture];
 
-plot (pit1Moisture(:,1))
+figure;
+plot (pit1Moisture(:,1));
+hold on;
+plot (pit1Moisture(:,2));
+hold on;
+plot (pit1Moisture(:,3));
+hold on;
+plot (pit1Moisture(:,4));
+hold on;
+plot (pit1Moisture(:,5));
+legend('5 cm','20 cm','45 cm','70 cm','100 cm')
+%% Parse Tension Data, Delete Superfluous
 
+July9tension (:,1) = July9{14}(5471:9718);
+July9tension (:,2) = July9{16}(5471:9718);
+July9tension (:,3) = July9{18}(5471:9718);
+July9tension (:,4) = July9{20}(5471:9718);
+
+July22tension (:,1) = July22{14}(22:end);
+July22tension (:,2) = July22{16}(22:end);
+July22tension (:,3) = July22{18}(22:end);
+July22tension (:,4) = July22{20}(22:end);
+
+Aug6tension (:,1) = Aug6{14}(9:end);
+Aug6tension (:,2) = Aug6{16}(9:end);
+Aug6tension (:,3) = Aug6{18}(9:end);
+Aug6tension (:,4) = Aug6{20}(9:end);
+
+Aug23tension (:,1) = Aug23{14}(5:end);
+Aug23tension (:,2) = Aug23{16}(5:end);
+Aug23tension (:,3) = Aug23{18}(5:end);
+Aug23tension (:,4) = Aug23{20}(5:end);
+
+Sep9tension (:,1) = Sep9{14}(10:end);
+Sep9tension (:,2) = Sep9{16}(10:end);
+Sep9tension (:,3) = Sep9{18}(10:end);
+Sep9tension (:,4) = Sep9{20}(10:end);
+
+Sep30tension (:,1) = Sep30{14}(62:end);
+Sep30tension (:,2) = Sep30{16}(62:end);
+Sep30tension (:,3) = Sep30{18}(62:end);
+Sep30tension (:,4) = Sep30{20}(62:end);
+
+pit1Tension = [July9tension; July22tension; Aug6tension; Aug23tension; Sep9tension; Sep30tension];
+
+figure;
+plot (pit1Tension(:,1));
+hold on;
+plot (pit1Tension(:,2));
+hold on;
+plot (pit1Tension(:,3));
+hold on;
+plot (pit1Tension(:,4));
+legend('5 cm','20 cm','45 cm','70 cm')
