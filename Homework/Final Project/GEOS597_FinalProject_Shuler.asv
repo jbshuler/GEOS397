@@ -159,11 +159,11 @@ pit1Tension1(8546,:) = [];
 pit1Tension1(10197,:) = [];
 
 for i=1:4;
-pit1Tension (:,i) = despike(pit1Tension1(:,i), -7999);
+pit1Tension (:,i) = despike (pit1Tension1(:,i), -7999);
 end
 
 figure;
-plot(pit1Tension(:,4),'--');
+plot(pit1Tension(:0),'--');
 hold on;
 plot (pit1Tension1(:,4));
 ylim([-7999 0]);
