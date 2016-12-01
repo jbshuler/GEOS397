@@ -142,14 +142,45 @@ end
 
 legend('5 cm','20 cm','45 cm','70 cm')
 datetick('x','mmm','keeplimits')
+%% Find and delete duplicate datetime, moisture, tension values
 
-%% Create new date vector; Interpolate missing values
+dupValues = find(diff(dateVec)==0);
+dateVec(5492) = [];
+dateVec(8546) = [];
+dateVec(10197) = [];
+
+pit1Moisture(5492,:) = [];
+pit1Moisture(8546,:) = [];
+pit1Moisture(10197,:) = [];
+
+pit1Tension(5492,:) = [];
+pit1Tension(8546,:) = [];
+pit1Tension(10197,:) = [];
+
+%% Create new date vector; Interpolate missing moisture/tension values
 t0 = dateVec(1);
 dt = dateVec(2)-dateVec(1);
-%dateVecNew = (linspace(t0,dateVec(end),13585))';
-dateVecNew = t0:dt:dateVec(end);
-y = interp1(dateVec, pit1Moisture, dateVecNew, 'pchip');
-%x = interp1(to, xo, t1, 'pchip'
-% figure;
-% plot(dateVecNew, y);
+dateVecNew = (t0:dt:dateVec(end))';
+
+for i = 1:5;
+    moistureInt(:,i) = interp1(dateVec, pit1Moisture(:,i), dateVecNew, 'pchip');
+end
+
+figure;
+for i = 1:5;
+    plot (dateVecNew, moistureInt(:,i));
+    hold on;
+end
+
+for i = 1:4;
+    tensionInt(:,i) = interp1(dateVec, pit1Tension(:,i), dateVecNew, 'pchip');
+end
+
+figure;
+for i = 1:4;
+    plot (dateVecNew, tensionInt(:,i));
+    hold on;
+end
+
+
 
