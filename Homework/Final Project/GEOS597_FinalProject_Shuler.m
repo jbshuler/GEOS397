@@ -7,11 +7,7 @@ clear all;
 clc;
 
 % For temp. influence on signal- Fitting Toolbox, 'nonlinfit'
-% Maybe low pass filter 
-% Combine date and time vectors
-% Use datenum to reformat date/time
-% Use datetick to label time axis
-% Interpolate with pchip; make new time vector from 0:dt:end
+% Maybe low pass filter  
 % x = interp1(to, xo, t1, 'pchip'
 % 
 
@@ -85,20 +81,25 @@ for i = 4:8;
     Sep30moisture (:,i-3) = Sep30{i}(62:end);
 end
 
-datetime = [July9datetime; July22datetime; Aug6datetime; Aug23datetime; Sep9datetime; Sep30datetime];
+datetimestamp = [July9datetime; July22datetime; Aug6datetime; Aug23datetime; Sep9datetime; Sep30datetime];
 pit1Moisture = [July9moisture; July22moisture; Aug6moisture; Aug23moisture; Sep9moisture; Sep30moisture];
 
+%% New datetime vector
+
+A = char(datetimestamp(:,1));
+B = char(datetimestamp(:,2));
+dayTime = strcat(A, {' '}, B);
+formatIn = 'mm/dd/yyyy HH:MM';
+dateVec = datenum(dayTime,formatIn);
+
 figure;
-plot (pit1Moisture(:,1));
-hold on;
-plot (pit1Moisture(:,2));
-hold on;
-plot (pit1Moisture(:,3));
-hold on;
-plot (pit1Moisture(:,4));
-hold on;
-plot (pit1Moisture(:,5));
+for i = 1:5;
+    plot (dateVec, pit1Moisture(:,i));
+    hold on;
+end
+
 legend('5 cm','20 cm','45 cm','70 cm','100 cm')
+datetick('x','mmm','keeplimits')
 %% Parse Tension Data, Delete Superfluous
 
 July9tension (:,1) = July9{14}(5471:9718);
@@ -134,11 +135,21 @@ Sep30tension (:,4) = Sep30{20}(62:end);
 pit1Tension = [July9tension; July22tension; Aug6tension; Aug23tension; Sep9tension; Sep30tension];
 
 figure;
-plot (pit1Tension(:,1));
-hold on;
-plot (pit1Tension(:,2));
-hold on;
-plot (pit1Tension(:,3));
-hold on;
-plot (pit1Tension(:,4));
+for i = 1:4;
+    plot (dateVec, pit1Tension(:,i));
+    hold on;
+end
+
 legend('5 cm','20 cm','45 cm','70 cm')
+datetick('x','mmm','keeplimits')
+
+%% Create new date vector; Interpolate missing values
+t0 = dateVec(1);
+dt = dateVec(2)-dateVec(1);
+%dateVecNew = (linspace(t0,dateVec(end),13585))';
+dateVecNew = t0:dt:dateVec(end);
+y = interp1(dateVec, pit1Moisture, dateVecNew, 'pchip');
+%x = interp1(to, xo, t1, 'pchip'
+% figure;
+% plot(dateVecNew, y);
+
