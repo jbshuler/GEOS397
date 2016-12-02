@@ -323,35 +323,27 @@ end
 Atemp = maxTemp - minTemp;
 Atemp(23:34) = [];
 
+brob = robustfit(Atemp, Aomega);
+brobtrend = polyval(brob, Atemp);
 figure;
 plot(Atemp, Aomega,'o')
-
-for i = 2:140;
-     meanOmega(1) = mean(moistureInt(93:188));
-     A = 93+(96*(i-1));
-     B = (188+96*(i-1));
-     meanOmega(i) = mean(moistureInt (A:B));
-end
-
-meanOmega(23:34) = [];
-
-pN = polyfit(Atemp, meanOmega, 1);   % generate trendline to determine alpha
-trend = polyval( pN, Atemp );
-R = corrcoef(Atemp,meanOmega);
-
-figure;
-plot(Atemp, meanOmega,'o');
-rSquared2 = (R(2))^2;
 hold on;
-plot(Atemp, trend);
+plot(Atemp, brobtrend);
 
-pN2 = polyfit(Atemp, Aomega, 1);   % generate trendline to determine alpha
-trend2 = polyval( pN2, Atemp );
-R2 = corrcoef(Atemp,Aomega);
-rSquared = (R2(2))^2;
-%%
-alpha = -0.0026;
-correctedOmega = moistureInt.*(1-(alpha*(tempInt-20)));
+% for i = 2:140;
+%      meanOmega(1) = mean(moistureInt(93:188));
+%      A = 93+(96*(i-1));
+%      B = (188+96*(i-1));
+%      meanOmega(i) = mean(moistureInt (A:B));
+% end
+% 
+% meanOmega(23:34) = [];
+% 
+% brob2 = robustfit(Atemp, meanOmega);
+% brobtrend2 = polyval(brob2, Atemp);
+
+alpha = brob(1)*10;
+correctedOmega = moistureInt(:,1).*(1-(alpha*(tempInt(:,1)-20)));
 
 figure;
 plot(correctedOmega);
@@ -387,13 +379,17 @@ fs = 1/(15*60);               % sampling frequency in Hz
 N = length(moistureInt)-1;
 nfft = 2^nextpow2(N);
 
+figure
 for i = 1:5;
-    [Pxx,f] = periodogram(moistureInt(:,i),[],nfft,fs);
+    tmp = detrend(detrend(moistureInt(8000:10000,i),'constant'),'linear');
+    [Pxx,f] = periodogram(tmp,[],nfft,fs);
+%    [Pxx,f] = periodogram(moistureInt(:,i),[],nfft,fs);
     subplot(1,5,i)
-    plot(f,Pxx); 
+    plot(f,Pxx);
     grid on;
     xlabel('Frequency [Hz]');
-    ylim([0 1000]);
+    %ylim([0 1000]);
+    xlim([0 1/(12*3600)])
 end
 title('Periodogram: Moisture') 
 
