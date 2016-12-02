@@ -157,7 +157,9 @@ pit1Tension(5492,:) = [];               % Remove tension values associated with 
 pit1Tension(8546,:) = [];
 pit1Tension(10197,:) = [];
 
-pit1Tension(pit1Tension<-7998) = NaN;
+pit1Tension(pit1Tension<-7998) = NaN;   % Replace all dropout values with NaN
+pit1Tension(10197:10222,4) = NaN;       % Replace dropout/anomalous values
+pit1Tension(10293:10317,4) = NaN;      % Replace dropout/anomalous values
 
 % for i=1:4;
 % pit1Tension (:,i) = despike(pit1Tension1(:,i), -7999);
@@ -224,7 +226,7 @@ pit1Temp(5492,:) = [];          % Remove temp values associated with duplicate d
 pit1Temp(8546,:) = [];
 pit1Temp(10197,:) = [];
 
-pit1Temp(2134,:) = NaN;       % Replace zero values in this row with NaN       
+pit1Temp(2134,:) = NaN;       % Replace zero values in this row with NaN 
 
 figure;
 for i = 1:4;
@@ -252,6 +254,10 @@ for i = 1:5;
     hold on;
 end
 
+legend('5 cm','20 cm','45 cm','70 cm','100 cm')
+datetick('x','mmm','keeplimits')
+title('Soil moisture time series with interpolated values')
+
 tensionInt = zeros(length(dateVecNew),4);
 for i = 1:4;
     tensionInt(:,i) = interp1(dateVec, pit1Tension(:,i), dateVecNew, 'pchip');
@@ -262,6 +268,10 @@ for i = 1:4;
     plot (dateVecNew, tensionInt(:,i));
     hold on;
 end
+
+legend('5 cm','20 cm','45 cm','70 cm')
+datetick('x','mmm','keeplimits')
+title('Soil tension time series with interpolated values')
 
 tempInt = zeros(length(dateVecNew),5);
 for i = 1:5;
@@ -276,7 +286,7 @@ end
 
 legend('5 cm','20 cm','45 cm','70 cm','100 cm')
 datetick('x','mmm','keeplimits')
-title('Temperature')
+title('Soil temperature with interpolated values')
 %% Temperature corrected moisture data
 
 maxOmega = zeros(1,140);
@@ -312,6 +322,8 @@ end
 
 Atemp = maxTemp - minTemp;
 Atemp(23:34) = [];
+
+brob = robustfit(Atemp, Aomega);
 
 figure;
 plot(Atemp, Aomega,'o')
@@ -377,13 +389,17 @@ fs = 1/(15*60);               % sampling frequency in Hz
 N = length(moistureInt)-1;
 nfft = 2^nextpow2(N);
 
+figure
 for i = 1:5;
-    [Pxx,f] = periodogram(moistureInt(:,i),[],nfft,fs);
+    tmp = detrend(detrend(moistureInt(8000:10000,i),'constant'),'linear');
+    [Pxx,f] = periodogram(tmp,[],nfft,fs);
+%    [Pxx,f] = periodogram(moistureInt(:,i),[],nfft,fs);
     subplot(1,5,i)
-    plot(f,Pxx); 
+    plot(f,Pxx);
     grid on;
     xlabel('Frequency [Hz]');
-    ylim([0 1000]);
+    %ylim([0 1000]);
+    xlim([0 1/(12*3600)])
 end
 title('Periodogram: Moisture') 
 
