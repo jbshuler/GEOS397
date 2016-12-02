@@ -89,9 +89,7 @@ end
 
 pit1Moisture = [July9moisture; July22moisture; Aug6moisture; Aug23moisture; Sep9moisture; Sep30moisture];
 
-%% Find and delete duplicate datetime, moisture, tension values
-
-pit1Moisture(5492,:) = [];
+pit1Moisture(5492,:) = [];                  % find and delete duplicate moisture values
 pit1Moisture(8546,:) = [];
 pit1Moisture(10197,:) = [];
 
@@ -105,12 +103,11 @@ dayTime = strcat(A, {' '}, B);
 formatIn = 'mm/dd/yyyy HH:MM';
 dateVec = datenum(dayTime,formatIn);
 
-dupValues = find(diff(dateVec)==0);         % Find duplicate dates
 dateVec(5492) = [];                         % Remove duplicate dates
 dateVec(8546) = [];
 dateVec(10197) = [];
 
-%% 
+%% Plot soil moisture with new date vector with gaps
 
 figure;
 for i = 1:5;
@@ -120,6 +117,8 @@ end
 
 legend('5 cm','20 cm','45 cm','70 cm','100 cm')
 datetick('x','mmm','keeplimits')
+title('Raw Soil Moisture Data')
+
 %% Parse Tension Data, Delete Superfluous
 
 July9tension (:,1) = July9{14}(5471:9718);
@@ -152,21 +151,23 @@ Sep30tension (:,2) = Sep30{16}(62:end);
 Sep30tension (:,3) = Sep30{18}(62:end);
 Sep30tension (:,4) = Sep30{20}(62:end);
 
-pit1Tension1 = [July9tension; July22tension; Aug6tension; Aug23tension; Sep9tension; Sep30tension];
+pit1Tension = [July9tension; July22tension; Aug6tension; Aug23tension; Sep9tension; Sep30tension];
 
-pit1Tension1(5492,:) = [];               % Remove tension values associated with duplicate dates
-pit1Tension1(8546,:) = [];
-pit1Tension1(10197,:) = [];
+pit1Tension(5492,:) = [];               % Remove tension values associated with duplicate dates
+pit1Tension(8546,:) = [];
+pit1Tension(10197,:) = [];
 
-for i=1:4;
-pit1Tension (:,i) = despike(pit1Tension1(:,i), -7999);
-end
+pit1Tension(pit1Tension<-7998) = NaN;
 
-figure;
-plot(pit1Tension(:,4),'--');
-hold on;
-plot (pit1Tension1(:,4));
-ylim([-7999 0]);
+% for i=1:4;
+% pit1Tension (:,i) = despike(pit1Tension1(:,i), -7999);
+% end
+% 
+% figure;
+% plot(pit1Tension(:,4),'--');
+% hold on;
+% plot (pit1Tension1(:,4));
+% ylim([-7999 0]);
 
 figure;
 for i = 1:4;
@@ -177,6 +178,7 @@ end
 legend('5 cm','20 cm','45 cm','70 cm')
 datetick('x','mmm','keeplimits')
 set(gca,'Ydir','reverse')
+title('Raw Soil Tension Data')
 
 %% Parse temperature data; delete superfluous
 
@@ -218,11 +220,11 @@ Sep30temp (:,5) = Sep30{13}(62:end);
 
 pit1Temp = [July9temp; July22temp; Aug6temp; Aug23temp; Sep9temp; Sep30temp];
 
-pit1Temp(5492,:) = [];               % Remove tension values associated with duplicate dates
+pit1Temp(5492,:) = [];          % Remove temp values associated with duplicate dates
 pit1Temp(8546,:) = [];
 pit1Temp(10197,:) = [];
 
-pit1Temp(2134,:) = [NaN];
+pit1Temp(2134,:) = NaN;       % Replace zero values in this row with NaN       
 
 figure;
 for i = 1:4;
@@ -232,13 +234,14 @@ end
 
 legend('5 cm','20 cm','45 cm','70 cm','100 cm')
 datetick('x','mmm','keeplimits')
-title('Temperature')
+title('Raw Temperature Data')
 
 %% Create new date vector; Interpolate missing moisture/tension/temperature values
 t0 = dateVec(1);
 dt = dateVec(2)-dateVec(1);
-dateVecNew = (t0:dt:dateVec(end))';
+dateVecNew = (t0:dt:dateVec(end))'; % new date vector with no gaps
 
+moistureInt = zeros(length(dateVecNew),5);
 for i = 1:5;
     moistureInt(:,i) = interp1(dateVec, pit1Moisture(:,i), dateVecNew, 'pchip');
 end
@@ -249,6 +252,7 @@ for i = 1:5;
     hold on;
 end
 
+tensionInt = zeros(length(dateVecNew),4);
 for i = 1:4;
     tensionInt(:,i) = interp1(dateVec, pit1Tension(:,i), dateVecNew, 'pchip');
 end
@@ -259,6 +263,7 @@ for i = 1:4;
     hold on;
 end
 
+tempInt = zeros(length(dateVecNew),5);
 for i = 1:5;
     tempInt(:,i) = interp1(dateVec, pit1Temp(:,i), dateVecNew, 'pchip');
 end
@@ -274,6 +279,7 @@ datetick('x','mmm','keeplimits')
 title('Temperature')
 %% Temperature corrected moisture data
 
+maxOmega = zeros(1,140);
 for i = 2:140;
      maxOmega(1) = max(moistureInt(93:188));
      A = 93+(96*(i-1));
@@ -288,6 +294,57 @@ for i = 2:140;
 end
 
 Aomega = maxOmega - minOmega;
+Aomega(23:34)= [];
+
+maxTemp = zeros(1,140);
+for i = 2:140;
+     maxTemp(1) = max(tempInt(93:188));
+     A = 93+(96*(i-1));
+     B = (188+96*(i-1));
+     maxTemp(i) = max(tempInt (A:B));
+end
+for i = 2:140;
+     minTemp(1) = min(tempInt(93:188));
+     A = 93+(96*(i-1));
+     B = (188+96*(i-1));
+     minTemp(i) = min(tempInt (A:B));
+end
+
+Atemp = maxTemp - minTemp;
+Atemp(23:34) = [];
+
+figure;
+plot(Atemp, Aomega,'o')
+
+for i = 2:140;
+     meanOmega(1) = mean(moistureInt(93:188));
+     A = 93+(96*(i-1));
+     B = (188+96*(i-1));
+     meanOmega(i) = mean(moistureInt (A:B));
+end
+
+meanOmega(23:34) = [];
+
+pN = polyfit(Atemp, meanOmega, 1);   % generate trendline to determine alpha
+trend = polyval( pN, Atemp );
+R = corrcoef(Atemp,meanOmega);
+
+figure;
+plot(Atemp, meanOmega,'o');
+rSquared2 = (R(2))^2;
+hold on;
+plot(Atemp, trend);
+
+pN2 = polyfit(Atemp, Aomega, 1);   % generate trendline to determine alpha
+trend2 = polyval( pN2, Atemp );
+R2 = corrcoef(Atemp,Aomega);
+rSquared = (R2(2))^2;
+%%
+alpha = -0.0026;
+correctedOmega = moistureInt.*(1-(alpha*(tempInt-20)));
+
+figure;
+plot(correctedOmega);
 %% Create characteristic curves
 figure;
 plot(moistureInt(:,1),tensionInt(:,1));
@@ -314,5 +371,31 @@ title('Characteristic Curve, 70 cm')
 figure;
 plot(moistureInt(:,5),moistureInt(:,1));
 
+%% Periodogram of moisture, tension, temperature raw data
+
+fs = 1/(15*60);               % sampling frequency in Hz
+N = length(moistureInt)-1;
+nfft = 2^nextpow2(N);
+
+for i = 1:5;
+    [Pxx,f] = periodogram(moistureInt(:,i),[],nfft,fs);
+    subplot(1,5,i)
+    plot(f,Pxx); 
+    grid on;
+    xlabel('Frequency [Hz]');
+    ylim([0 1000]);
+end
+title('Periodogram: Moisture') 
+
+figure;
+for i = 1:4;
+    [Pxx,f] = periodogram(tensionInt(:,i),[],nfft,fs);
+    subplot(1,4,i)
+    title('Periodogram: Tension')
+    plot(f,Pxx); 
+    grid on;
+    xlabel('Frequency [Hz]');
+    ylim([0 1000]);
+end
 
 
