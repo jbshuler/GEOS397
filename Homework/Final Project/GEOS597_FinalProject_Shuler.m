@@ -324,36 +324,26 @@ Atemp = maxTemp - minTemp;
 Atemp(23:34) = [];
 
 brob = robustfit(Atemp, Aomega);
-
+brobtrend = polyval(brob, Atemp);
 figure;
 plot(Atemp, Aomega,'o')
-
-for i = 2:140;
-     meanOmega(1) = mean(moistureInt(93:188));
-     A = 93+(96*(i-1));
-     B = (188+96*(i-1));
-     meanOmega(i) = mean(moistureInt (A:B));
-end
-
-meanOmega(23:34) = [];
-
-pN = polyfit(Atemp, meanOmega, 1);   % generate trendline to determine alpha
-trend = polyval( pN, Atemp );
-R = corrcoef(Atemp,meanOmega);
-
-figure;
-plot(Atemp, meanOmega,'o');
-rSquared2 = (R(2))^2;
 hold on;
-plot(Atemp, trend);
+plot(Atemp, brobtrend);
 
-pN2 = polyfit(Atemp, Aomega, 1);   % generate trendline to determine alpha
-trend2 = polyval( pN2, Atemp );
-R2 = corrcoef(Atemp,Aomega);
-rSquared = (R2(2))^2;
-%%
-alpha = -0.0026;
-correctedOmega = moistureInt.*(1-(alpha*(tempInt-20)));
+% for i = 2:140;
+%      meanOmega(1) = mean(moistureInt(93:188));
+%      A = 93+(96*(i-1));
+%      B = (188+96*(i-1));
+%      meanOmega(i) = mean(moistureInt (A:B));
+% end
+% 
+% meanOmega(23:34) = [];
+% 
+% brob2 = robustfit(Atemp, meanOmega);
+% brobtrend2 = polyval(brob2, Atemp);
+
+alpha = brob(1)*10;
+correctedOmega = moistureInt(:,1).*(1-(alpha*(tempInt(:,1)-20)));
 
 figure;
 plot(correctedOmega);
