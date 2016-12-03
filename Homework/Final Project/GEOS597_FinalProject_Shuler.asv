@@ -118,6 +118,7 @@ end
 legend('5 cm','20 cm','45 cm','70 cm','100 cm')
 datetick('x','mmm','keeplimits')
 title('Raw Soil Moisture Data')
+ylabel('Volumetric Moisture Content [m^3/m^3]')
 
 %% Parse Tension Data, Delete Superfluous
 
@@ -157,30 +158,23 @@ pit1Tension(5492,:) = [];               % Remove tension values associated with 
 pit1Tension(8546,:) = [];
 pit1Tension(10197,:) = [];
 
-pit1Tension(pit1Tension<-7998) = NaN;   % Replace all dropout values with NaN
-pit1Tension(10197:10222,4) = NaN;       % Replace dropout/anomalous values
-pit1Tension(10293:10317,4) = NaN;      % Replace dropout/anomalous values
-
-% for i=1:4;
-% pit1Tension (:,i) = despike(pit1Tension1(:,i), -7999);
-% end
-% 
-% figure;
-% plot(pit1Tension(:,4),'--');
-% hold on;
-% plot (pit1Tension1(:,4));
-% ylim([-7999 0]);
-
 figure;
 for i = 1:4;
     plot (dateVec, pit1Tension(:,i));
     hold on;
 end
 
-legend('5 cm','20 cm','45 cm','70 cm')
+legend('5 cm','20 cm','45 cm','70 cm','Location','Northwest')
 datetick('x','mmm','keeplimits')
 set(gca,'Ydir','reverse')
 title('Raw Soil Tension Data')
+ylabel('Soil Matric Potential [kPa]')
+
+%% Replace dropouts/spikes with NaN
+
+pit1Tension(pit1Tension<-7998) = NaN;   % Replace all dropout values with NaN
+pit1Tension(10197:10222,4) = NaN;       % Replace dropout/anomalous values
+pit1Tension(10293:10317,4) = NaN;       % Replace dropout/anomalous values
 
 %% Parse temperature data; delete superfluous
 
@@ -237,57 +231,14 @@ end
 legend('5 cm','20 cm','45 cm','70 cm','100 cm')
 datetick('x','mmm','keeplimits')
 title('Raw Temperature Data')
+ylabel('Temperature [\circC]')
 
-%% Create new date vector; Interpolate missing moisture/tension/temperature values
+%% Create new date vector
 t0 = dateVec(1);
 dt = dateVec(2)-dateVec(1);
 dateVecNew = (t0:dt:dateVec(end))'; % new date vector with no gaps
 
-moistureInt = zeros(length(dateVecNew),5);
-for i = 1:5;
-    moistureInt(:,i) = interp1(dateVec, pit1Moisture(:,i), dateVecNew, 'pchip');
-end
-
-figure;
-for i = 1:5;
-    plot (dateVecNew, moistureInt(:,i));
-    hold on;
-end
-
-legend('5 cm','20 cm','45 cm','70 cm','100 cm')
-datetick('x','mmm','keeplimits')
-title('Soil moisture time series with interpolated values')
-
-tensionInt = zeros(length(dateVecNew),4);
-for i = 1:4;
-    tensionInt(:,i) = interp1(dateVec, pit1Tension(:,i), dateVecNew, 'pchip');
-end
-
-figure;
-for i = 1:4;
-    plot (dateVecNew, tensionInt(:,i));
-    hold on;
-end
-
-legend('5 cm','20 cm','45 cm','70 cm')
-datetick('x','mmm','keeplimits')
-title('Soil tension time series with interpolated values')
-
-tempInt = zeros(length(dateVecNew),5);
-for i = 1:5;
-    tempInt(:,i) = interp1(dateVec, pit1Temp(:,i), dateVecNew, 'pchip');
-end
-
-figure;
-for i = 1:5;
-    plot (dateVecNew, tempInt(:,i));
-    hold on;
-end
-
-legend('5 cm','20 cm','45 cm','70 cm','100 cm')
-datetick('x','mmm','keeplimits')
-title('Soil temperature with interpolated values')
-%% Temperature corrected moisture data
+%% Temperature corrected moisture data: Lu Method
 
 maxOmega = zeros(1,140);
 for i = 2:140;
@@ -296,6 +247,8 @@ for i = 2:140;
      B = (188+96*(i-1));
      maxOmega(i) = max(moistureInt (A:B));
 end
+
+minOmega = zeros(1,140);
 for i = 2:140;
      minOmega(1) = min(moistureInt(93:188));
      A = 93+(96*(i-1));
@@ -313,6 +266,8 @@ for i = 2:140;
      B = (188+96*(i-1));
      maxTemp(i) = max(tempInt (A:B));
 end
+
+minTemp = zeros(1,140);
 for i = 2:140;
      minTemp(1) = min(tempInt(93:188));
      A = 93+(96*(i-1));
@@ -330,23 +285,275 @@ plot(Atemp, Aomega,'o')
 hold on;
 plot(Atemp, brobtrend);
 
-% for i = 2:140;
-%      meanOmega(1) = mean(moistureInt(93:188));
-%      A = 93+(96*(i-1));
-%      B = (188+96*(i-1));
-%      meanOmega(i) = mean(moistureInt (A:B));
-% end
-% 
-% meanOmega(23:34) = [];
-% 
-% brob2 = robustfit(Atemp, meanOmega);
-% brobtrend2 = polyval(brob2, Atemp);
-
-alpha = brob(1)*10;
+alpha = brob(1);
 correctedOmega = moistureInt(:,1).*(1-(alpha*(tempInt(:,1)-20)));
 
 figure;
 plot(correctedOmega);
+%% Temperature Correction: Decagon Method
+% Choose 3 rain-free periods with similar start/end temps
+A1 = pit1Moisture(1842:1937,1);
+A2 = pit1Temp (1842:1937,1);
+
+B1 = pit1Moisture(5594:5689,1);
+B2 = pit1Temp (5594:5689,1);
+
+C1 = pit1Moisture(8341:8436,1);
+C2 = pit1Temp (8341:8436,1);
+
+X1 = [dateVec(1842) dateVec(1937)];
+X2 = [dateVec(5594) dateVec(5689)];
+X3 = [dateVec(8341) dateVec(8436)];
+Y1 = [A1(1) A1(end)];
+Y2 = [B1(1) B1(end)];
+Y3 = [C1(1) C1(end)];
+
+p1 = polyfit(X1, Y1, 1);
+p2 = polyfit(X2, Y2, 1);
+p3 = polyfit(X3, Y3, 1);
+
+yInt1 = polyval(p1, dateVec(1842:1937));
+yInt2 = polyval(p2, dateVec(5594:5689));
+yInt3 = polyval(p3, dateVec(8341:8436));
+
+VMCmeasured = [A1; B1; C1]; 
+temp        = [A2; B2; C2];
+VMCint      = [yInt1; yInt2; yInt3];
+
+X = [ones(size(VMCmeasured)) VMCmeasured temp VMCmeasured.*temp];
+b = regress(VMCint,X);
+
+C3 = b(1);
+C1 = b(2);
+C2 = b(3);
+
+moistureCorrected = zeros(length(pit1Temp),5);
+moistureCorrected(:,1) = C1.*(pit1Moisture(:,1)) + C2*(pit1Temp(:,1)) + C3;
+
+% 20 cm Sensor
+
+A1 = pit1Moisture(1842:1937,2);
+A2 = pit1Temp (1842:1937,2);
+
+B1 = pit1Moisture(5594:5689,2);
+B2 = pit1Temp (5594:5689,2);
+
+C1 = pit1Moisture(8341:8436,2);
+C2 = pit1Temp (8341:8436,2);
+
+X1 = [dateVec(1842) dateVec(1937)];
+X2 = [dateVec(5594) dateVec(5689)];
+X3 = [dateVec(8341) dateVec(8436)];
+Y1 = [A1(1) A1(end)];
+Y2 = [B1(1) B1(end)];
+Y3 = [C1(1) C1(end)];
+
+p1 = polyfit(X1, Y1, 1);
+p2 = polyfit(X2, Y2, 1);
+p3 = polyfit(X3, Y3, 1);
+
+yInt1 = polyval(p1, dateVec(1842:1937));
+yInt2 = polyval(p2, dateVec(5594:5689));
+yInt3 = polyval(p3, dateVec(8341:8436));
+
+VMCmeasured = [A1; B1; C1]; 
+temp        = [A2; B2; C2];
+VMCint      = [yInt1; yInt2; yInt3];
+
+X = [ones(size(VMCmeasured)) VMCmeasured temp VMCmeasured.*temp];
+b = regress(VMCint,X);
+
+C3 = b(1);
+C1 = b(2);
+C2 = b(3);
+
+moistureCorrected(:,2) = C1.*(pit1Moisture(:,2)) + C2*(pit1Temp(:,2)) + C3;
+
+% 45 cm Sensor
+
+A1 = pit1Moisture(1842:1937,3);
+A2 = pit1Temp (1842:1937,3);
+
+B1 = pit1Moisture(5594:5689,3);
+B2 = pit1Temp (5594:5689,3);
+
+C1 = pit1Moisture(8341:8436,3);
+C2 = pit1Temp (8341:8436,3);
+
+X1 = [dateVec(1842) dateVec(1937)];
+X2 = [dateVec(5594) dateVec(5689)];
+X3 = [dateVec(8341) dateVec(8436)];
+Y1 = [A1(1) A1(end)];
+Y2 = [B1(1) B1(end)];
+Y3 = [C1(1) C1(end)];
+
+p1 = polyfit(X1, Y1, 1);
+p2 = polyfit(X2, Y2, 1);
+p3 = polyfit(X3, Y3, 1);
+
+yInt1 = polyval(p1, dateVec(1842:1937));
+yInt2 = polyval(p2, dateVec(5594:5689));
+yInt3 = polyval(p3, dateVec(8341:8436));
+
+VMCmeasured = [A1; B1; C1]; 
+temp        = [A2; B2; C2];
+VMCint      = [yInt1; yInt2; yInt3];
+
+X = [ones(size(VMCmeasured)) VMCmeasured temp VMCmeasured.*temp];
+b = regress(VMCint,X);
+
+C3 = b(1);
+C1 = b(2);
+C2 = b(3);
+
+moistureCorrected(:,3) = C1.*(pit1Moisture(:,3)) + C2*(pit1Temp(:,3)) + C3;
+
+% 70 cm Sensor
+
+A1 = pit1Moisture(1842:1937,4);
+A2 = pit1Temp (1842:1937,4);
+
+B1 = pit1Moisture(5594:5689,4);
+B2 = pit1Temp (5594:5689,4);
+
+C1 = pit1Moisture(8341:8436,4);
+C2 = pit1Temp (8341:8436,4);
+
+X1 = [dateVec(1842) dateVec(1937)];
+X2 = [dateVec(5594) dateVec(5689)];
+X3 = [dateVec(8341) dateVec(8436)];
+Y1 = [A1(1) A1(end)];
+Y2 = [B1(1) B1(end)];
+Y3 = [C1(1) C1(end)];
+
+p1 = polyfit(X1, Y1, 1);
+p2 = polyfit(X2, Y2, 1);
+p3 = polyfit(X3, Y3, 1);
+
+yInt1 = polyval(p1, dateVec(1842:1937));
+yInt2 = polyval(p2, dateVec(5594:5689));
+yInt3 = polyval(p3, dateVec(8341:8436));
+
+VMCmeasured = [A1; B1; C1]; 
+temp        = [A2; B2; C2];
+VMCint      = [yInt1; yInt2; yInt3];
+
+X = [ones(size(VMCmeasured)) VMCmeasured temp VMCmeasured.*temp];
+b = regress(VMCint,X);
+
+C3 = b(1);
+C1 = b(2);
+C2 = b(3);
+
+moistureCorrected(:,4) = C1.*(pit1Moisture(:,4)) + C2*(pit1Temp(:,4)) + C3;
+
+% 100 cm Sensor
+
+A1 = pit1Moisture(1842:1937,5);
+A2 = pit1Temp (1842:1937,5);
+
+B1 = pit1Moisture(5594:5689,5);
+B2 = pit1Temp (5594:5689,5);
+
+C1 = pit1Moisture(8341:8436,5);
+C2 = pit1Temp (8341:8436,5);
+
+X1 = [dateVec(1842) dateVec(1937)];
+X2 = [dateVec(5594) dateVec(5689)];
+X3 = [dateVec(8341) dateVec(8436)];
+Y1 = [A1(1) A1(end)];
+Y2 = [B1(1) B1(end)];
+Y3 = [C1(1) C1(end)];
+
+p1 = polyfit(X1, Y1, 1);
+p2 = polyfit(X2, Y2, 1);
+p3 = polyfit(X3, Y3, 1);
+
+yInt1 = polyval(p1, dateVec(1842:1937));
+yInt2 = polyval(p2, dateVec(5594:5689));
+yInt3 = polyval(p3, dateVec(8341:8436));
+
+VMCmeasured = [A1; B1; C1]; 
+temp        = [A2; B2; C2];
+VMCint      = [yInt1; yInt2; yInt3];
+
+X = [ones(size(VMCmeasured)) VMCmeasured temp VMCmeasured.*temp];
+b = regress(VMCint,X);
+
+C3 = b(1);
+C1 = b(2);
+C2 = b(3);
+
+moistureCorrected(:,5) = C1.*(pit1Moisture(:,5)) + C2*(pit1Temp(:,5)) + C3;
+
+figure;
+for i = 1:5;
+    plot(dateVec, moistureCorrected(:,i));
+    hold on;
+end
+
+legend('5 cm','20 cm','45 cm','70 cm','100 cm')
+datetick('x','mmm','keeplimits')
+title('Temperature-corrected soil moisure time series')
+ylabel('Volumetric Water Content [m^3/m^3]')
+
+%% Interpolate missing values/data gaps
+moistureInt = zeros(length(dateVecNew),5);
+for i = 1:5;
+    moistureInt(:,i) = interp1(dateVec, moistureCorrected(:,i), dateVecNew, 'pchip');
+end
+
+figure;
+for i = 1:5;
+    plot (dateVecNew, moistureInt(:,i));
+    hold on;
+end
+
+legend('5 cm','20 cm','45 cm','70 cm','100 cm')
+datetick('x','mmm','keeplimits')
+title('Soil moisture time series with interpolated values')
+
+tensionInt = zeros(length(dateVecNew),4);
+for i = 1:2;
+    tensionInt(:,i) = interp1(dateVec, pit1Tension(:,i), dateVecNew, 'pchip'); 
+end
+
+A = zeros(13585,1);
+A(9802:13585,1) = NaN;
+B = interp1(dateVec(1:9801,1),pit1Tension(1:9801,3), dateVecNew(1:9801,1), 'pchip');
+A(1:9801) = B;
+tensionInt(:,3) = A;
+
+tensionInt(:,4) = interp1(dateVec, pit1Tension(:,4), dateVecNew, 'pchip');
+
+figure;
+for i = 1:4;
+    plot (dateVecNew, tensionInt(:,i));
+    hold on;
+end
+
+legend('5 cm','20 cm','45 cm','70 cm')
+datetick('x','mmm','keeplimits')
+title('Soil tension time series with interpolated values')
+set(gca,'Ydir','reverse')
+
+
+tempInt = zeros(length(dateVecNew),5);
+for i = 1:5;
+    tempInt(:,i) = interp1(dateVec, pit1Temp(:,i), dateVecNew, 'pchip');
+end
+
+figure;
+for i = 1:5;
+    plot (dateVecNew, tempInt(:,i));
+    hold on;
+end
+
+legend('5 cm','20 cm','45 cm','70 cm','100 cm')
+datetick('x','mmm','keeplimits')
+title('Soil temperature with interpolated values')
+ylabel('Temperature [\circC]')
+
 %% Create characteristic curves
 figure;
 plot(moistureInt(:,1),tensionInt(:,1));
